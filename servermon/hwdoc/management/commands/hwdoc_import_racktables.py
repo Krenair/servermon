@@ -156,12 +156,12 @@ class Command(BaseCommand):
                     RackSpace.atom,
                     Row.location_name
             FROM Object
-            JOIN AttributeValue
+            LEFT JOIN AttributeValue
                 ON Object.id = AttributeValue.object_id
-            JOIN AttributeMap
+            LEFT JOIN AttributeMap
                 ON AttributeMap.objtype_id = AttributeValue.object_tid
                 AND AttributeMap.attr_id = AttributeValue.attr_id
-            JOIN Attribute ON
+            LEFT JOIN Attribute ON
                 Attribute.id = AttributeMap.attr_id
             LEFT JOIN Dictionary ON
                 Dictionary.dict_key = AttributeValue.uint_value
@@ -187,12 +187,12 @@ class Command(BaseCommand):
                     'zero_u' as atom,
                     Row.location_name
             FROM Object
-            JOIN AttributeValue
+            LEFT JOIN AttributeValue
                 ON Object.id = AttributeValue.object_id
-            JOIN AttributeMap
+            LEFT JOIN AttributeMap
                 ON AttributeMap.objtype_id = AttributeValue.object_tid
                 AND AttributeMap.attr_id = AttributeValue.attr_id
-            JOIN Attribute ON
+            LEFT JOIN Attribute ON
                 Attribute.id = AttributeMap.attr_id
             LEFT JOIN Dictionary ON
                 Dictionary.dict_key = AttributeValue.uint_value
@@ -292,13 +292,11 @@ class Command(BaseCommand):
                 equipments[object_name]['rack_back'] = False
 
         for k, v in equipments.items():
-            flagged = False
-            # TODO: Remove this crap!!!
             if 'eq_model' not in v:
-                flagged = True
+                print 'Ignoring', k, 'due to missing/broken HW type'
+                continue
             if 'serial' not in v:
-                flagged = True
-            if flagged:
+                print 'Ignoring', k, 'due to missing OEM S/N 1'
                 continue
             vendor, created = Vendor.objects.get_or_create(name=v['vendor'])
             eqm, created = EquipmentModel.objects.get_or_create(
